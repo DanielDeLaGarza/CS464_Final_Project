@@ -80,7 +80,6 @@ window.game.core = function () {
 			// Methods
 			create: function() {
 				// Create a global physics material for the player which will be used as ContactMaterial for all other objects in the level
-				_cannon.playerPhysicsMaterial = new CANNON.Material("playerMaterial");
 
 				// Create a player character based on an imported 3D model that was already loaded as JSON into game.models.player
 
@@ -94,7 +93,7 @@ window.game.core = function () {
 				// Create the shape, mesh and rigid body for the player character and assign the physics material to it
 				_game.player.shape = new CANNON.Box(_game.player.model.halfExtents);
 				_game.player.rigidBody = new CANNON.RigidBody(_game.player.mass, _game.player.shape, _cannon.createPhysicsMaterial(_cannon.playerPhysicsMaterial));
-				_game.player.rigidBody.position.set(0, 0, 50);
+				_game.player.rigidBody.position.set(100, 30, 50);
 				_game.player.mesh = _cannon.addVisual(_game.player.rigidBody, null, _game.player.model.mesh);
 
 				// Create a HingeConstraint to limit player's air-twisting - this needs improvement
@@ -309,27 +308,8 @@ window.game.core = function () {
 				}
 			},
 
-			// Third-person camera configuration
-			playerCoords: null,
-			cameraCoords: null,
-			// Camera offsets behind the player (horizontally and vertically)
-			cameraOffsetH: 240,
-			cameraOffsetV: 140,
-
-			// Keyboard configuration for game.events.js (controlKeys must be associated to game.events.keyboard.keyCodes)
-			controlKeys: {
-				forward: "w",
-				backward: "s",
-				left: "a",
-				right: "d",
-				jump: "space"
-			},
-			
 			// Methods
 			create: function() {
-				// Create a global physics material for the player which will be used as ContactMaterial for all other objects in the level
-				_cannon.playerPhysicsMaterial = new CANNON.Material("playerMaterial");
-
 				// Create a player character based on an imported 3D model that was already loaded as JSON into game.models.player
 
 //___________________TO_DO__THIS_IS_WHERE_OUT_NEW_SHADER_GOES______________________________________________________
@@ -415,19 +395,12 @@ window.game.core = function () {
 				// Set actual XYZ velocity by using calculated Cartesian coordinates
 				_game.playerAutomatic.rigidBody.velocity.set(_game.playerAutomatic.playerCoords.x, _game.playerAutomatic.playerCoords.y, _game.playerAutomatic.rigidBody.velocity.z);
 
-				// Damping
-				if (!_events.keyboard.pressed[_game.playerAutomatic.controlKeys.forward] && !_events.keyboard.pressed[_game.playerAutomatic.controlKeys.backward]) {
-					_game.playerAutomatic.acceleration *= _game.playerAutomatic.damping;
-				}
+			    _game.playerAutomatic.acceleration *= _game.playerAutomatic.damping;
 			},
 			rotate: function() {
 				// Rotate player around Z axis
 				_cannon.rotateOnAxis(_game.playerAutomatic.rigidBody, new CANNON.Vec3(0, 0, 1), _game.playerAutomatic.rotationAcceleration);
-
-				// Damping
-				if (!_events.keyboard.pressed[_game.playerAutomatic.controlKeys.left] && !_events.keyboard.pressed[_game.playerAutomatic.controlKeys.right]) {
-					_game.playerAutomatic.rotationAcceleration *= _game.playerAutomatic.rotationDamping;
-				}
+			    _game.playerAutomatic.rotationAcceleration *= _game.playerAutomatic.rotationDamping;
 			},
 			jump: function() {
 				// Perform a jump if player has collisions and the collision contact is beneath him (ground)
@@ -457,8 +430,8 @@ window.game.core = function () {
 				}
 			},
 		},
-//______________________EDIT_LEVEL_SO_PLAYERS_WONT_FALL_OFF_THE_LEDGE____________________________
-//________________________________________________________________________________________________
+
+
 		level: {
 			// Methods
 			create: function() {
@@ -591,6 +564,8 @@ window.game.core = function () {
 			// Initialize components with options
 			_three.init(options);
 			_cannon.init(_three);
+            //initialize the playerPhysicsMaterial
+		    _cannon.playerPhysicsMaterial = new CANNON.Material("playerMaterial");
 			_ui.init();
 			_events.init();
 
