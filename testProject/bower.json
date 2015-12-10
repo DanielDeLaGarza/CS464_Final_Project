@@ -1,8 +1,10 @@
 {
-  "name": "three-basicthirdpersongame",
+  "name": "three-BiggerFishGame",
   "version": "1.0.0",
   "authors": [
-    "matthias-schuetz <MatthiasSchuetz@gmx.de>"
+    "matthias-schuetz <MatthiasSchuetz@gmx.de>",
+    "Jaron-Shelman <jnshelman@gmail.com>",
+    "Daniel De La Garza <josedelagarza@u.boisestate.edu>"
   ],
   "description": "JavaScript starter kit for your next WebGL 3D game based on THREE.js + Cannon.js",
   "main": [

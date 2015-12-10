@@ -1,6 +1,6 @@
 {
-  "name": "THREE.BasicThirdPersonGame",
-  "author": "Matthias Schuetz",
+  "name": "THREE.BiggerFishGame",
+  "author": "Jaron Shelman & Daniel De La Garza",
   "description": "Game Starter Kit in THREE.js + Cannon.js. The Gruntfile creates a minified version of all libraries and the game into /js/game.js.",
   "version": "1.0.0",
   "dependencies": {},
@@ -12,7 +12,7 @@
   "repositories": [
     {
       "type": "git",
-      "url": "https://github.com/matthias-schuetz/three-basicthirdpersongame.git"
+      "url": "https://github.com/DanielDeLaGarza/CS464_Final_Project.git"
     }
   ],
   "licenses": [
@@ -21,5 +21,5 @@
       "url": "https://github.com/matthias-schuetz/three-basicthirdpersongame/blob/master/LICENSE"
     }
   ],
-  "homepage": "http://matthiasschuetz.com/three-basicthirdpersongame"
+  "homepage": "https://github.com/DanielDeLaGarza/CS464_Final_Project.git"
 }
