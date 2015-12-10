@@ -19,6 +19,7 @@ window.game.core = function () {
 			mesh: null,
 			shape: null,
 			rigidBody: null,
+
 			// Player mass which affects other rigid bodies in the world
 			mass: 3,
 
@@ -335,7 +336,7 @@ window.game.core = function () {
 //_________________________________________________________________________________________________________________
 				_game.player.model = _three.createModel(window.game.models.player, 12, [
 					new THREE.MeshLambertMaterial({ color: window.game.static.colors.cyan, shading: THREE.SmoothShading }),
-					new THREE.MeshLambertMaterial({ color: window.game.static.colors.green, shading: THREE.SmoothShading })
+					new THREE.MeshLambertMaterial({ color: window.game.static.colors.red, shading: THREE.SmoothShading })
 				]);
 
 				// Create the shape, mesh and rigid body for the player character and assign the physics material to it
