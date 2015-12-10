@@ -351,7 +351,7 @@ window.game.core = function () {
 			},
 			update: function() {
 				// Basic game logic to update player and camera
-				_game.playerAutomatic.processUserInput();
+				_game.playerAutomatic.think();
 				_game.playerAutomatic.accelerate();
 				_game.playerAutomatic.rotate();
 
@@ -385,8 +385,24 @@ window.game.core = function () {
 			},
 //_____________________TO_DO_FOR_AUTOMATIC_PLAYER_ENEMIES_NEED_T0_WITE_AN_AI_FUNCTION_INSTED_OF_USER_INPUT
 //__________________________________________________________________________________________________________
-			processUserInput: function() {
+			think: function() {
+				if(randTimeSince){
+					direction = Math.random();
+					jump = Math.random();
+				}
+
 				_game.playerAutomatic.updateAcceleration(_game.playerAutomatic.playerAccelerationValues.position, 1);
+				if(direction < .33){
+					_game.playerAutomatic.updateAcceleration(_game.playerAutomatic.playerAccelerationValues.rotation, -1);
+				}
+				if(direction > .66){
+					_game.playerAutomatic.updateAcceleration(_game.playerAutomatic.playerAccelerationValues.rotation, 1);
+
+				}
+				
+				if(jump < 0.001){
+					_game.playerAutomatic.jump();
+				}
 			},
 			accelerate: function() {
 				// Calculate player coordinates by using current acceleration Euler radians from player's last rotation
@@ -592,6 +608,16 @@ window.game.core = function () {
 		playerAutomatic: window.game.helpers.cloneObject(_game.playerAutomatic),
 		level: window.game.helpers.cloneObject(_game.level)
 	};
+
+	randTimeSince = (function () {
+    var lastCall = 0;
+    return function () {  	
+        if (new Date() - lastCall < Math.random() * (4000))
+            return false;
+        lastCall = new Date();
+        return true;
+    }
+	})();
 
 	return _game;
 };
