@@ -344,6 +344,7 @@ window.game.core = function () {
 				_game.playerAutomatic.rigidBody = new CANNON.RigidBody(_game.playerAutomatic.mass, _game.playerAutomatic.shape, _cannon.createPhysicsMaterial(_cannon.playerPhysicsMaterial));
 				_game.playerAutomatic.rigidBody.position.set(0, 0, 50);
 				_game.playerAutomatic.mesh = _cannon.addVisual(_game.playerAutomatic.rigidBody, null, _game.playerAutomatic.model.mesh);
+                _game.playerAutomatic.mesh.scale.set(0.5,0.5,0.5);
 
 				// Create a HingeConstraint to limit player's air-twisting - this needs improvement
 				_game.playerAutomatic.orientationConstraint = new CANNON.HingeConstraint(_game.playerAutomatic.rigidBody, new CANNON.Vec3(0, 0, 0), new CANNON.Vec3(0, 0, 1), _game.playerAutomatic.rigidBody, new CANNON.Vec3(0, 0, 1), new CANNON.Vec3(0, 0, 1));
