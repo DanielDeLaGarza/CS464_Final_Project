@@ -8,6 +8,8 @@ window.game = window.game || {};
 window.game.core = function () {
 	var _game = {
 		// Attributes
+        scale : 1,
+        collide : 0,
 
 //_________TODO__MAKE_AN_AUTOMATIC_PLAYER_ENEMY________________
 //________________________________________________________________
@@ -95,6 +97,7 @@ window.game.core = function () {
 				_game.player.rigidBody = new CANNON.RigidBody(_game.player.mass, _game.player.shape, _cannon.createPhysicsMaterial(_cannon.playerPhysicsMaterial));
 				_game.player.rigidBody.position.set(100, 30, 50);
 				_game.player.mesh = _cannon.addVisual(_game.player.rigidBody, null, _game.player.model.mesh);
+                _game.player.mesh.scale.set(_game.scale, _game.scale, _game.scale);
 
 				// Create a HingeConstraint to limit player's air-twisting - this needs improvement
 				_game.player.orientationConstraint = new CANNON.HingeConstraint(_game.player.rigidBody, new CANNON.Vec3(0, 0, 0), new CANNON.Vec3(0, 0, 1), _game.player.rigidBody, new CANNON.Vec3(0, 0, 1), new CANNON.Vec3(0, 0, 1));
@@ -108,10 +111,24 @@ window.game.core = function () {
 					_game.player.updateOrientation();
 				};
 
-//________________TODO_EDIT_COLLIDE_FUNCTION_TO_EAT_OR_BE_EATEN
-//____________________________________________________________________________________________________________________________
 				// Collision event listener for the jump mechanism
 				_game.player.rigidBody.addEventListener("collide", function(event) {
+                    switch(event.with.id) {
+                        case 1 : console.log("how am I?"); break;
+                        case 2 : 
+                            if(!_game.collide) {
+                                _game.collide = 1;
+                                _game.player.objectCollide();
+                            }
+                            break;
+                        case 3 : console.log("????"); break;
+                        case 4 :
+                        case 5 :
+                        case 6 :
+                        case 7 :
+                        case 8 : break; //do nothing
+                        default : console.log("unkown collision");
+                    }
 					// Checks if player's is on ground
 					if (!_game.player.isGrounded) {
 						// Ray intersection test to check if player is colliding with an object beneath him
@@ -119,6 +136,14 @@ window.game.core = function () {
 					}
 				});
 			},
+            
+            objectCollide : function() {
+                console.log("testing collision");
+                _game.scale = _game.scale + 0.02;
+                _game.destroy();
+                _game.collide = 0;
+            },
+
 			update: function() {
 				// Basic game logic to update player and camera
 				_game.player.processUserInput();
