@@ -86,8 +86,8 @@ window.game.core = function () {
 //___________________TO_DO__THIS_IS_WHERE_OUT_NEW_SHADER_GOES______________________________________________________
 //_________________________________________________________________________________________________________________
 				_game.player.model = _three.createModel(window.game.models.player, 12, [
-					new THREE.MeshLambertMaterial({ color: window.game.static.colors.cyan, shading: THREE.FlatShading }),
-					new THREE.MeshLambertMaterial({ color: window.game.static.colors.green, shading: THREE.FlatShading })
+					new THREE.MeshLambertMaterial({ color: window.game.static.colors.cyan, shading: THREE.SmoothShading}),
+					new THREE.MeshLambertMaterial({ color: window.game.static.colors.green, shading: THREE.SmoothShading })
 				]);
 
 				// Create the shape, mesh and rigid body for the player character and assign the physics material to it
@@ -334,8 +334,8 @@ window.game.core = function () {
 //___________________TO_DO__THIS_IS_WHERE_OUT_NEW_SHADER_GOES______________________________________________________
 //_________________________________________________________________________________________________________________
 				_game.player.model = _three.createModel(window.game.models.player, 12, [
-					new THREE.MeshLambertMaterial({ color: window.game.static.colors.cyan, shading: THREE.FlatShading }),
-					new THREE.MeshLambertMaterial({ color: window.game.static.colors.green, shading: THREE.FlatShading })
+					new THREE.MeshLambertMaterial({ color: window.game.static.colors.cyan, shading: THREE.SmoothShading }),
+					new THREE.MeshLambertMaterial({ color: window.game.static.colors.green, shading: THREE.SmoothShading })
 				]);
 
 				// Create the shape, mesh and rigid body for the player character and assign the physics material to it
