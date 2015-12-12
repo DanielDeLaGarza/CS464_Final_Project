@@ -6,7 +6,7 @@
 window.game = window.game || {};
 
 window.game.core = function () {
-	var _game = {
+	_game = {
 		// Attributes
         scale : 1,
         collide : 0,
@@ -319,6 +319,10 @@ window.game.core = function () {
 			// Acceleration values
 			acceleration: 0,
 			rotationAcceleration: 0,
+			//Ai Values
+			turn: false,
+			direcion: 0,
+			canjump: 1,
 			// Enum for an easier method access to acceleration/rotation
 			playerAccelerationValues: {
 				position: {
@@ -411,23 +415,65 @@ window.game.core = function () {
 //_____________________TO_DO_FOR_AUTOMATIC_PLAYER_ENEMIES_NEED_T0_WITE_AN_AI_FUNCTION_INSTED_OF_USER_INPUT
 //__________________________________________________________________________________________________________
 			think: function() {
-				if(randTimeSince){
-					direction = Math.random();
-					jump = Math.random();
-				}
+				//calculate if player is close here
+				x = _game.player.mesh.position.x - _game.playerAutomatic.mesh.position.x;
+				y =  _game.player.mesh.position.y; - _game.playerAutomatic.mesh.position.y;
+				distance = Math.sqrt(Math.pow(x,2) + Math.pow(y,2));
 
-				_game.playerAutomatic.updateAcceleration(_game.playerAutomatic.playerAccelerationValues.position, 1);
-				if(direction < .33){
-					_game.playerAutomatic.updateAcceleration(_game.playerAutomatic.playerAccelerationValues.rotation, -1);
-				}
-				if(direction > .66){
-					_game.playerAutomatic.updateAcceleration(_game.playerAutomatic.playerAccelerationValues.rotation, 1);
+				//if far way from player
+				if(!(distance < 150)){
+					if(randTimeSince()){
+					_game.playerAutomatic.turn = !_game.playerAutomatic.turn;
+					_game.playerAutomatic.direction = Math.random() -0.5;
+					_game.playerAutomatic.canjump = Math.random();
+					}
 
+					if(_game.playerAutomatic.direction > 0){
+						_game.playerAutomatic.updateAcceleration(_game.playerAutomatic.playerAccelerationValues.rotation, -1);
+					}
+					else if(_game.playerAutomatic.direction < 0){
+						_game.playerAutomatic.updateAcceleration(_game.playerAutomatic.playerAccelerationValues.rotation, 1);
+					}
+					if(!_game.playerAutomatic.turn){
+						_game.playerAutomatic.updateAcceleration(_game.playerAutomatic.playerAccelerationValues.position, 1);
+					}
+				
+					if(_game.playerAutomatic.canjump < 0.05){
+						_game.playerAutomatic.jump();
+					}
+				}
+				//close to player
+				else{
+					myDirection = _game.playerAutomatic.mesh.rotation.z ;
+					
+
+					if(x > 0 && y > 0){
+						angleBetweenUs = Math.sin(y,distance);
+						targetDirection = angleBetweenUs -  myDirection;
+
+					}
+					else if(x < 0 && y > 0){
+						angleBetweenUs = window.game.helpers.degToRad(180)  - Math.sin(y,distance);
+						targetDirection = angleBetweenUs - myDirection;
+
+					}
+					else if(x < 0 && y < 0){
+						angleBetweenUs = -window.game.helpers.degToRad(180)  + Math.sin(y,distance);
+						targetDirection = angleBetweenUs - myDirection;
+						
+					}
+					else{
+						angleBetweenUs = -Math.sin(y,distance);
+						targetDirection = angleBetweenUs - myDirection;
+
+					}
+					// try to move away from player
+
+					//calculate the direction away from player
+					//change direction until it is close enough to the direction away
+					//if close enough randomize direction away a tad bit
 				}
 				
-				if(jump < 0.001){
-					_game.playerAutomatic.jump();
-				}
 			},
 			accelerate: function() {
 				// Calculate player coordinates by using current acceleration Euler radians from player's last rotation
@@ -637,7 +683,7 @@ window.game.core = function () {
 	randTimeSince = (function () {
     var lastCall = 0;
     return function () {  	
-        if (new Date() - lastCall < Math.random() * (4000))
+        if (new Date() - lastCall < Math.random() * (5000))
             return false;
         lastCall = new Date();
         return true;
