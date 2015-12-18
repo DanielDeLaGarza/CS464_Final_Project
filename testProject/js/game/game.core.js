@@ -95,7 +95,7 @@ window.game.core = function () {
 				// Create the shape, mesh and rigid body for the player character and assign the physics material to it
 				_game.player.shape = new CANNON.Box(_game.player.model.halfExtents);
 				_game.player.rigidBody = new CANNON.RigidBody(_game.player.mass, _game.player.shape, _cannon.createPhysicsMaterial(_cannon.playerPhysicsMaterial));
-				_game.player.rigidBody.position.set(100, 30, 50);
+				_game.player.rigidBody.position.set(50, 50, 0);
 				_game.player.mesh = _cannon.addVisual(_game.player.rigidBody, null, _game.player.model.mesh);
                 _game.player.mesh.scale.set(_game.scale, _game.scale, _game.scale);
 
@@ -338,51 +338,53 @@ window.game.core = function () {
 			},
 
 			// Methods
-			create: function() {
+			create: function(x, y, z) {
 				// Create a player character based on an imported 3D model that was already loaded as JSON into game.models.player
 
 //___________________TO_DO__THIS_IS_WHERE_OUT_NEW_SHADER_GOES______________________________________________________
 //_________________________________________________________________________________________________________________
-				_game.playerAutomatic.model = _three.createModel(window.game.models.player, 12, [
+				this.model = _three.createModel(window.game.models.player, 12, [
 					new THREE.MeshLambertMaterial({ color: window.game.static.colors.cyan, shading: THREE.SmoothShading }),
 					new THREE.MeshLambertMaterial({ color: window.game.static.colors.red, shading: THREE.SmoothShading })
 				]);
 
 				// Create the shape, mesh and rigid body for the player character and assign the physics material to it
-				_game.playerAutomatic.shape = new CANNON.Box(_game.playerAutomatic.model.halfExtents);
-				_game.playerAutomatic.rigidBody = new CANNON.RigidBody(_game.playerAutomatic.mass, _game.playerAutomatic.shape, _cannon.createPhysicsMaterial(_cannon.playerPhysicsMaterial));
-				_game.playerAutomatic.rigidBody.position.set(0, 0, 50);
-				_game.playerAutomatic.mesh = _cannon.addVisual(_game.playerAutomatic.rigidBody, null, _game.playerAutomatic.model.mesh);
-                _game.playerAutomatic.mesh.scale.set(0.5,0.5,0.5);
+				this.shape = new CANNON.Box(this.model.halfExtents);
+				this.rigidBody = new CANNON.RigidBody(this.mass, this.shape, _cannon.createPhysicsMaterial(_cannon.playerPhysicsMaterial));
+				this.rigidBody.position.set(x, y, z);
+				this.mesh = _cannon.addVisual(this.rigidBody, null, this.model.mesh);
+                this.mesh.scale.set(0.5,0.5,0.5);
 
 				// Create a HingeConstraint to limit player's air-twisting - this needs improvement
-				_game.playerAutomatic.orientationConstraint = new CANNON.HingeConstraint(_game.playerAutomatic.rigidBody, new CANNON.Vec3(0, 0, 0), new CANNON.Vec3(0, 0, 1), _game.playerAutomatic.rigidBody, new CANNON.Vec3(0, 0, 1), new CANNON.Vec3(0, 0, 1));
-				_cannon.world.addConstraint(_game.playerAutomatic.orientationConstraint);
-
-				_game.playerAutomatic.rigidBody.postStep = function() {
+				this.orientationConstraint = new CANNON.HingeConstraint(this.rigidBody, new CANNON.Vec3(0, 0, 0), new CANNON.Vec3(0, 0, 1), this.rigidBody, new CANNON.Vec3(0, 0, 1), new CANNON.Vec3(0, 0, 1));
+				_cannon.world.addConstraint(this.orientationConstraint);
+				this.rigidBody.parent = this;
+				this.rigidBody.postStep = function() {
 					// Reset player's angularVelocity to limit possible exceeding rotation and
-					_game.playerAutomatic.rigidBody.angularVelocity.z = 0;
+					this.parent.rigidBody.angularVelocity.z = 0;
 
 					// update player's orientation afterwards
-					_game.playerAutomatic.updateOrientation();
+					this.parent.updateOrientation();
 				};
 
 //________________TODO_EDIT_COLLIDE_FUNCTION_TO_EAT_OR_BE_EATEN
 //____________________________________________________________________________________________________________________________
+
 				// Collision event listener for the jump mechanism
-				_game.playerAutomatic.rigidBody.addEventListener("collide", function(event) {
+				var self = this;
+				this.rigidBody.addEventListener("collide", function(event) {
 					// Checks if player's is on ground
-					if (!_game.playerAutomatic.isGrounded) {
+					if (!self.isGrounded) {
 						// Ray intersection test to check if player is colliding with an object beneath him
-						_game.playerAutomatic.isGrounded = (new CANNON.Ray(_game.playerAutomatic.mesh.position, new CANNON.Vec3(0, 0, -1)).intersectBody(event.contact.bi).length > 0);
+						self.isGrounded = (new CANNON.Ray(self.mesh.position, new CANNON.Vec3(0, 0, -1)).intersectBody(event.contact.bi).length > 0);
 					}
 				});
 			},
 			update: function() {
 				// Basic game logic to update player and camera
-				_game.playerAutomatic.think();
-				_game.playerAutomatic.accelerate();
-				_game.playerAutomatic.rotate();
+				this.think();
+				this.accelerate();
+				this.rotate();
 
 			},
 			
@@ -390,25 +392,25 @@ window.game.core = function () {
 				// Distinguish between acceleration/rotation and forward/right (1) and backward/left (-1)
 				if (direction === 1) {
 					// Forward/right
-					if (_game.playerAutomatic[values.acceleration] > -_game.playerAutomatic[values.speedMax]) {
-						if (_game.playerAutomatic[values.acceleration] >= _game.playerAutomatic[values.speedMax] / 2) {
-							_game.playerAutomatic[values.acceleration] = -(_game.playerAutomatic[values.speedMax] / 4);
+					if (this[values.acceleration] > -this[values.speedMax]) {
+						if (this[values.acceleration] >= this[values.speedMax] / 2) {
+							this[values.acceleration] = -(this[values.speedMax] / 4);
 						} else {
-							_game.playerAutomatic[values.acceleration] -= _game.playerAutomatic[values.speed];
+							this[values.acceleration] -= this[values.speed];
 						}
 					} else {
-						_game.playerAutomatic[values.acceleration] = -_game.playerAutomatic[values.speedMax];
+						this[values.acceleration] = -this[values.speedMax];
 					}
 				} else {
 					// Backward/left
-					if (_game.playerAutomatic[values.acceleration] < _game.playerAutomatic[values.speedMax]) {
-						if (_game.playerAutomatic[values.acceleration] <= -(_game.playerAutomatic[values.speedMax] / 2)) {
-							_game.playerAutomatic[values.acceleration] = _game.playerAutomatic[values.speedMax] / 4;
+					if (this[values.acceleration] < this[values.speedMax]) {
+						if (this[values.acceleration] <= -(this[values.speedMax] / 2)) {
+							this[values.acceleration] = this[values.speedMax] / 4;
 						} else {
-							_game.playerAutomatic[values.acceleration] += _game.playerAutomatic[values.speed];
+							this[values.acceleration] += this[values.speed];
 						}
 					} else {
-						_game.playerAutomatic[values.acceleration] = _game.playerAutomatic[values.speedMax];
+						this[values.acceleration] = this[values.speedMax];
 					}
 				}
 			},
@@ -416,35 +418,35 @@ window.game.core = function () {
 //__________________________________________________________________________________________________________
 			think: function() {
 				//calculate if player is close here
-				x = _game.player.mesh.position.x - _game.playerAutomatic.mesh.position.x;
-				y =  _game.player.mesh.position.y; - _game.playerAutomatic.mesh.position.y;
+				x = _game.player.mesh.position.x - this.mesh.position.x;
+				y =  _game.player.mesh.position.y; - this.mesh.position.y;
 				distance = Math.sqrt(Math.pow(x,2) + Math.pow(y,2));
 
 				//if far way from player
 				if(!(distance < 150)){
 					if(randTimeSince()){
-					_game.playerAutomatic.turn = !_game.playerAutomatic.turn;
-					_game.playerAutomatic.direction = Math.random() -0.5;
-					_game.playerAutomatic.canjump = Math.random();
+					this.turn = !this.turn;
+					this.direction = Math.random() -0.5;
+					this.canjump = Math.random();
 					}
 
-					if(_game.playerAutomatic.direction > 0){
-						_game.playerAutomatic.updateAcceleration(_game.playerAutomatic.playerAccelerationValues.rotation, -1);
+					if(this.direction > 0){
+						this.updateAcceleration(this.playerAccelerationValues.rotation, -1);
 					}
-					else if(_game.playerAutomatic.direction < 0){
-						_game.playerAutomatic.updateAcceleration(_game.playerAutomatic.playerAccelerationValues.rotation, 1);
+					else if(this.direction < 0){
+						this.updateAcceleration(this.playerAccelerationValues.rotation, 1);
 					}
-					if(!_game.playerAutomatic.turn){
-						_game.playerAutomatic.updateAcceleration(_game.playerAutomatic.playerAccelerationValues.position, 1);
+					if(!this.turn){
+						this.updateAcceleration(this.playerAccelerationValues.position, 1);
 					}
 				
-					if(_game.playerAutomatic.canjump < 0.05){
-						_game.playerAutomatic.jump();
+					if(this.canjump < 0.05){
+						this.jump();
 					}
 				}
 				//close to player
 				else{
-					myDirection = _game.playerAutomatic.mesh.rotation.z ;
+					myDirection = this.mesh.rotation.z ;
 					
 
 					if(x > 0 && y > 0){
@@ -477,43 +479,43 @@ window.game.core = function () {
 			},
 			accelerate: function() {
 				// Calculate player coordinates by using current acceleration Euler radians from player's last rotation
-				_game.playerAutomatic.playerCoords = window.game.helpers.polarToCartesian(_game.playerAutomatic.acceleration, _game.playerAutomatic.rotationRadians.z);
+				this.playerCoords = window.game.helpers.polarToCartesian(this.acceleration, this.rotationRadians.z);
 
 				// Set actual XYZ velocity by using calculated Cartesian coordinates
-				_game.playerAutomatic.rigidBody.velocity.set(_game.playerAutomatic.playerCoords.x, _game.playerAutomatic.playerCoords.y, _game.playerAutomatic.rigidBody.velocity.z);
+				this.rigidBody.velocity.set(this.playerCoords.x, this.playerCoords.y, this.rigidBody.velocity.z);
 
-			    _game.playerAutomatic.acceleration *= _game.playerAutomatic.damping;
+			    this.acceleration *= this.damping;
 			},
 			rotate: function() {
 				// Rotate player around Z axis
-				_cannon.rotateOnAxis(_game.playerAutomatic.rigidBody, new CANNON.Vec3(0, 0, 1), _game.playerAutomatic.rotationAcceleration);
-			    _game.playerAutomatic.rotationAcceleration *= _game.playerAutomatic.rotationDamping;
+				_cannon.rotateOnAxis(this.rigidBody, new CANNON.Vec3(0, 0, 1), this.rotationAcceleration);
+			    this.rotationAcceleration *= this.rotationDamping;
 			},
 			jump: function() {
 				// Perform a jump if player has collisions and the collision contact is beneath him (ground)
-				if (_cannon.getCollisions(_game.playerAutomatic.rigidBody.index) && _game.playerAutomatic.isGrounded) {
-					_game.playerAutomatic.isGrounded = false;
-					_game.playerAutomatic.rigidBody.velocity.z = _game.playerAutomatic.jumpHeight;
+				if (_cannon.getCollisions(this.rigidBody.index) && this.isGrounded) {
+					this.isGrounded = false;
+					this.rigidBody.velocity.z = this.jumpHeight;
 				}
 			},
 			updateOrientation: function() {
-				// Convert player's Quaternion to Euler radians and save them to _game.playerAutomatic.rotationRadians
-				_game.playerAutomatic.rotationRadians = new THREE.Euler().setFromQuaternion(_game.playerAutomatic.rigidBody.quaternion);
+				// Convert player's Quaternion to Euler radians and save them to this.rotationRadians
+				this.rotationRadians = new THREE.Euler().setFromQuaternion(this.rigidBody.quaternion);
 
 				// Round angles
-				_game.playerAutomatic.rotationAngleX = Math.round(window.game.helpers.radToDeg(_game.playerAutomatic.rotationRadians.x));
-				_game.playerAutomatic.rotationAngleY = Math.round(window.game.helpers.radToDeg(_game.playerAutomatic.rotationRadians.y));
+				this.rotationAngleX = Math.round(window.game.helpers.radToDeg(this.rotationRadians.x));
+				this.rotationAngleY = Math.round(window.game.helpers.radToDeg(this.rotationRadians.y));
 
 				// Prevent player from being upside-down on a slope - this needs improvement
-				if ((_cannon.getCollisions(_game.playerAutomatic.rigidBody.index) &&
-					((_game.playerAutomatic.rotationAngleX >= 90) ||
-						(_game.playerAutomatic.rotationAngleX <= -90) ||
-						(_game.playerAutomatic.rotationAngleY >= 90) ||
-						(_game.playerAutomatic.rotationAngleY <= -90)))
+				if ((_cannon.getCollisions(this.rigidBody.index) &&
+					((this.rotationAngleX >= 90) ||
+						(this.rotationAngleX <= -90) ||
+						(this.rotationAngleY >= 90) ||
+						(this.rotationAngleY <= -90)))
 					)
 				{
 					// Reset orientation
-					_game.playerAutomatic.rigidBody.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 0, 1), _game.playerAutomatic.rotationRadians.z);
+					this.rigidBody.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 0, 1), this.rotationRadians.z);
 				}
 			},
 		},
@@ -587,7 +589,7 @@ window.game.core = function () {
 
 			// Create player and level
 			_game.player.create();
-			_game.playerAutomatic.create();
+			_game.playerAutomatic.create(0,0,0);
 			_game.level.create();
 
 			// Initiate the game loop
@@ -607,12 +609,14 @@ window.game.core = function () {
 			
 			_game.player = window.game.helpers.cloneObject(_gameDefaults.player);
 			_game.playerAutomatic = window.game.helpers.cloneObject(_gameDefaults.playerAutomatic);
+			_game.playerAutomatic2 = window.game.helpers.cloneObject(_gameDefaults.playerAutomatic);
 
 			_game.level = window.game.helpers.cloneObject(_gameDefaults.level);
 
 			// Create player and level again
 			_game.player.create();
-            _game.playerAutomatic.create();
+            _game.playerAutomatic.create(0, 0 ,0);
+            _game.playerAutomatic2.create(0, 0 ,0);
 			_game.level.create();
 
 			// Continue with the game loop
