@@ -13,6 +13,7 @@ window.game.core = function () {
         MIN_Edible_Ratio: .5, //ratio of deible fishes to total
         fishQuantity: 10, //number of fishes spawning
         fishes: [], //array of the enmies
+        currentFishID: 0,
 
 //_________TODO__MAKE_AN_AUTOMATIC_PLAYER_ENEMY________________
 //________________________________________________________________
@@ -127,12 +128,17 @@ window.game.core = function () {
 			},
             
             objectCollide : function(other) {
-                console.log("testing collision");
-                if(other.scale/_game.player.scale < .66){
+                if(other.scale/_game.player.scale < 0.66){
                 	_game.player.scale = _game.player.scale + 0.02;
                 	_game.player.mesh.scale.set(_game.player.scale, _game.player.scale, _game.player.scale);
                 	_cannon.removeVisual(other.rigidBody);
-                	_game.fishes.splice(other.id, 1);
+                	for (var i = 0; i < _game.fishes.length; i++){
+                		if(_game.fishes[i].id == other.id){
+                			_game.fishes.splice(i,1);
+                			_game.addFishKeepRatio();
+                			break;
+                		}
+                	}
                 }
             	else if(_game.player.scale/other.scale < .66){
             		_game.destroy();
@@ -430,7 +436,6 @@ window.game.core = function () {
 //__________________________________________________________________________________________________________
 			think: function() {
 				//calculate if player is close here
-				//console.log(this);
 				x = _game.player.mesh.position.x - this.mesh.position.x;
 				y =  _game.player.mesh.position.y; - this.mesh.position.y;
 				distance = Math.sqrt(Math.pow(x,2) + Math.pow(y,2));
@@ -691,32 +696,28 @@ window.game.core = function () {
 			var edible = 0;
 
 			for (var i = 0; i < _game.fishes.length; i++){
-				console.log(_game.fishes[i].scale/_game.player.scale);
-				if(_game.fishes[i].scale/_game.player.scale < 1){
+				if(_game.fishes[i].scale/_game.player.scale < .66){
 					edible++;
 				}
 				else{
 					unedible++;
 				}
 			}
-			console.log(edible);
-			console.log(unedible);
-			console.log(edible/(unedible + unedible));
 			return edible/(unedible + unedible);
 		},
 		addFish: function(edible){
-			console.log("adding fish");
 			var size = 1;
 			if(edible){
 				size = Math.random() * (_game.player.scale*0.6 - _game.player.scale*0.3) + _game.player.scale*0.3;
 
 			}
 			else{
-				size = Math.random()*(_game.player.scale*1.8 - _game.player.scale*0.7) + _game.player.scale*0.7;
+				size = Math.random()*(_game.player.scale*3 - _game.player.scale*0.7) + _game.player.scale*0.7;
 			}
 			_game.fishes[_game.fishes.length] = window.game.helpers.cloneObject(_gameDefaults.playerAutomatic);
 			_game.fishes[_game.fishes.length-1].create(Math.random()*700,Math.random()*700,0, size);
-			_game.fishes[_game.fishes.length - 1].id = _game.fishes.length - 1;
+			_game.fishes[_game.fishes.length - 1].id = _game.currentFishID;
+			_game.currentFishID++;
 		},
 		addFishKeepRatio: function(){
 			if(_game.edibleRatio() < _game.MIN_Edible_Ratio){
