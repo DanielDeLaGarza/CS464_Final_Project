@@ -10,9 +10,9 @@ window.game.core = function () {
 		// Attributes
         scale : 1,
         collide : 0,
-        MIN_Edible_Ratio: .5,
-        fishQuantity: 10,
-        fishes: [],
+        MIN_Edible_Ratio: .5, //ratio of deible fishes to total
+        fishQuantity: 10, //number of fishes spawning
+        fishes: [], //array of the enmies
 
 //_________TODO__MAKE_AN_AUTOMATIC_PLAYER_ENEMY________________
 //________________________________________________________________
@@ -351,7 +351,7 @@ window.game.core = function () {
 				this.rigidBody = new CANNON.RigidBody(this.mass, this.shape, _cannon.createPhysicsMaterial(_cannon.playerPhysicsMaterial));
 				this.rigidBody.position.set(x, y, z);
 				this.mesh = _cannon.addVisual(this.rigidBody, null, this.model.mesh);
-                this.mesh.scale.set(this.scale, this.scale, this.scale);
+                this.mesh.scale.set(s, s, s);
 
 				// Create a HingeConstraint to limit player's air-twisting - this needs improvement
 				this.orientationConstraint = new CANNON.HingeConstraint(this.rigidBody, new CANNON.Vec3(0, 0, 0), new CANNON.Vec3(0, 0, 1), this.rigidBody, new CANNON.Vec3(0, 0, 1), new CANNON.Vec3(0, 0, 1));
@@ -649,9 +649,6 @@ window.game.core = function () {
 			// Update Cannon.js world and player state
 			_cannon.updatePhysics();
 			_game.player.update();
-            //_game.playerAutomatic.update();
-            //if(_game.playerAutomatic2 != null)
-            	//_game.playerAutomatic2.update();
 
             for(var i = 0; i < _game.fishes.length; i++){
             	_game.fishes[i].update();
@@ -698,14 +695,18 @@ window.game.core = function () {
 			var edible = 0;
 
 			for (var i = 0; i < _game.fishes.length; i++){
-				if(_game.fishes[i].scale/_game.player.sacle < .66){
+				console.log(_game.fishes[i].scale/_game.player.scale);
+				if(_game.fishes[i].scale/_game.player.scale < 1){
 					edible++;
 				}
 				else{
 					unedible++;
 				}
 			}
-			return edible/unedible;
+			console.log(edible);
+			console.log(unedible);
+			console.log(edible/(unedible + unedible));
+			return edible/(unedible + unedible);
 		},
 		addFish: function(edible){
 			console.log("adding fish");
