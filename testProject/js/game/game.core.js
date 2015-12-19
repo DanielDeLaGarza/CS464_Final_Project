@@ -348,7 +348,7 @@ window.game.core = function () {
 //_________________________________________________________________________________________________________________
 				this.scale = s;
                 this.color = _game.getObjectColor(this.scale, _game.player.scale);
-				this.model = _three.createModel(window.game.models.player, 12, [
+				this.model = _three.createModel(window.game.models.player, 12*this.scale, [
 					new THREE.MeshLambertMaterial({ color: window.game.static.colors.cyan, shading: THREE.SmoothShading }),
 					new THREE.MeshLambertMaterial({ color: this.color, shading: THREE.SmoothShading })
 				]);
@@ -357,8 +357,8 @@ window.game.core = function () {
 				this.shape = new CANNON.Box(this.model.halfExtents);
 				this.rigidBody = new CANNON.RigidBody(this.mass, this.shape, _cannon.createPhysicsMaterial(_cannon.playerPhysicsMaterial));
 				this.rigidBody.position.set(x, y, z);
+
 				this.mesh = _cannon.addVisual(this.rigidBody, null, this.model.mesh);
-                this.mesh.scale.set(s, s, s);
 
 				// Create a HingeConstraint to limit player's air-twisting - this needs improvement
 				this.orientationConstraint = new CANNON.HingeConstraint(this.rigidBody, new CANNON.Vec3(0, 0, 0), new CANNON.Vec3(0, 0, 1), this.rigidBody, new CANNON.Vec3(0, 0, 1), new CANNON.Vec3(0, 0, 1));
