@@ -347,9 +347,10 @@ window.game.core = function () {
 //___________________TO_DO__THIS_IS_WHERE_OUT_NEW_SHADER_GOES______________________________________________________
 //_________________________________________________________________________________________________________________
 				this.scale = s;
+                this.color = _game.getObjectColor(this.scale, _game.player.scale);
 				this.model = _three.createModel(window.game.models.player, 12, [
 					new THREE.MeshLambertMaterial({ color: window.game.static.colors.cyan, shading: THREE.SmoothShading }),
-					new THREE.MeshLambertMaterial({ color: window.game.static.colors.red, shading: THREE.SmoothShading })
+					new THREE.MeshLambertMaterial({ color: this.color, shading: THREE.SmoothShading })
 				]);
 
 				// Create the shape, mesh and rigid body for the player character and assign the physics material to it
@@ -691,6 +692,25 @@ window.game.core = function () {
 				}
 			};
 		},
+
+        /**
+         * Derives the color of the object based off of the difference between the provided sizes.
+         */
+        getObjectColor : function(object_size, base_size) {
+            var base_color = 0x0f0f0f;
+                difference = 0;
+            if(object_size > base_size) {
+                //the object is bigger, and will be shaded darker
+                difference = object_size - base_size;
+                return base_color - (0x010101 * difference);
+
+            } else {
+                //the object is smaller, and will be shaded lighter
+                difference = base_size - object_size;
+                return base_color + (0x010101 * difference);
+            }
+        },
+
 		edibleRatio: function(){
 			var unedible = 0;
 			var edible = 0;
