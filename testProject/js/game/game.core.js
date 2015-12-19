@@ -92,7 +92,7 @@ window.game.core = function () {
 
 //___________________TO_DO__THIS_IS_WHERE_OUT_NEW_SHADER_GOES______________________________________________________
 //_________________________________________________________________________________________________________________
-				_game.player.model = _three.createModel(window.game.models.player, 12, [
+				_game.player.model = _three.createModel(window.game.models.player, 12*_game.player.scale, [
 					new THREE.MeshLambertMaterial({ color: window.game.static.colors.cyan, shading: THREE.SmoothShading}),
 					new THREE.MeshLambertMaterial({ color: window.game.static.colors.green, shading: THREE.SmoothShading })
 				]);
@@ -102,7 +102,7 @@ window.game.core = function () {
 				_game.player.rigidBody = new CANNON.RigidBody(_game.player.mass, _game.player.shape, _cannon.createPhysicsMaterial(_cannon.playerPhysicsMaterial));
 				_game.player.rigidBody.position.set(50, 50, 0);
 				_game.player.mesh = _cannon.addVisual(_game.player.rigidBody, null, _game.player.model.mesh);
-                _game.player.mesh.scale.set(_game.player.scale, _game.player.scale, _game.player.scale);
+                //_game.player.mesh.scale.set(_game.player.scale, _game.player.scale, _game.player.scale);
 
 				// Create a HingeConstraint to limit player's air-twisting - this needs improvement
 				_game.player.orientationConstraint = new CANNON.HingeConstraint(_game.player.rigidBody, new CANNON.Vec3(0, 0, 0), new CANNON.Vec3(0, 0, 1), _game.player.rigidBody, new CANNON.Vec3(0, 0, 1), new CANNON.Vec3(0, 0, 1));
@@ -126,11 +126,23 @@ window.game.core = function () {
 					}
 				});
 			},
+
+			resizePlayer: function(){
+				_game.player.model = _three.createModel(window.game.models.player, 12*_game.player.scale, [
+					new THREE.MeshLambertMaterial({ color: window.game.static.colors.cyan, shading: THREE.SmoothShading}),
+					new THREE.MeshLambertMaterial({ color: window.game.static.colors.green, shading: THREE.SmoothShading })
+				]);
+
+				// Create the shape, mesh and rigid body for the player character and assign the physics material to it
+				_game.player.shape = new CANNON.Box(_game.player.model.halfExtents);
+				_game.player.rigidBody.shape = _game.player.shape;
+				_game.player.mesh.scale.set(_game.player.scale, _game.player.scale, _game.player.scale);
+			},
             
             objectCollide : function(other) {
                 if(other.scale/_game.player.scale < 0.66){
                 	_game.player.scale = _game.player.scale + 0.02;
-                	_game.player.mesh.scale.set(_game.player.scale, _game.player.scale, _game.player.scale);
+                	_game.player.resizePlayer();
                 	_cannon.removeVisual(other.rigidBody);
                 	for (var i = 0; i < _game.fishes.length; i++){
                 		if(_game.fishes[i].id == other.id){
@@ -549,6 +561,8 @@ window.game.core = function () {
 				// Define floor settings
 				var floorSize = 800;
 				var floorHeight = 20;
+				var wallHieght = 150;
+				var wallThickness = 16
 
 				// Add a floor
 				_cannon.createRigidBody({
@@ -561,37 +575,45 @@ window.game.core = function () {
 
 				// Add some boxes
 				_cannon.createRigidBody({
-					shape: new CANNON.Box(new CANNON.Vec3(floorSize, 50, 150)),
+					shape: new CANNON.Box(new CANNON.Vec3(floorSize + wallThickness, wallThickness, wallHieght)),
 					mass: 0,
-					position: new CANNON.Vec3(0, floorSize, 0),
-					meshMaterial: new THREE.MeshLambertMaterial({ color: window.game.static.colors.cyan }),
+					position: new CANNON.Vec3(0, floorSize, wallHieght/2),
+					meshMaterial: new THREE.MeshLambertMaterial({color: window.game.static.colors.white, transparent: true, opacity: 0.5}),
 					physicsMaterial: _cannon.solidMaterial
 				});
 				// Add some boxes
 				_cannon.createRigidBody({
-					shape: new CANNON.Box(new CANNON.Vec3(floorSize, 50, 150)),
+					shape: new CANNON.Box(new CANNON.Vec3(floorSize + wallThickness, wallThickness, wallHieght)),
 					mass: 0,
-					position: new CANNON.Vec3(0, -floorSize, 0),
-					meshMaterial: new THREE.MeshLambertMaterial({ color: window.game.static.colors.cyan }),
+					position: new CANNON.Vec3(0, -floorSize, wallHieght/2),
+					meshMaterial: new THREE.MeshLambertMaterial({color: window.game.static.colors.white, transparent: true, opacity: 0.5}),
 					physicsMaterial: _cannon.solidMaterial
 				});
 
 				// Add some boxes
 				_cannon.createRigidBody({
-					shape: new CANNON.Box(new CANNON.Vec3(50, floorSize, 150)),
+					shape: new CANNON.Box(new CANNON.Vec3(wallThickness, floorSize + wallThickness, wallHieght)),
 					mass: 0,
-					position: new CANNON.Vec3(floorSize, 0, 0),
-					meshMaterial: new THREE.MeshLambertMaterial({ color: window.game.static.colors.cyan }),
+					position: new CANNON.Vec3(floorSize, 0, wallHieght/2),
+					meshMaterial: new THREE.MeshLambertMaterial({color: window.game.static.colors.white, transparent: true, opacity: 0.5}),
 					physicsMaterial: _cannon.solidMaterial
 				});
 				// Add some boxes
 				_cannon.createRigidBody({
-					shape: new CANNON.Box(new CANNON.Vec3(50, floorSize, 150)),
+					shape: new CANNON.Box(new CANNON.Vec3(wallThickness, floorSize + wallThickness, wallHieght)),
 					mass: 0,
-					position: new CANNON.Vec3(-floorSize, 0, 0),
-					meshMaterial: new THREE.MeshLambertMaterial({ color: window.game.static.colors.cyan }),
+					position: new CANNON.Vec3(-floorSize, 0, wallHieght/2 ),
+					meshMaterial: new THREE.MeshLambertMaterial({color: window.game.static.colors.white, transparent: true, opacity: 0.33}),
 					physicsMaterial: _cannon.solidMaterial
 				});
+
+				// _cannon.createRigidBody({
+				// 	shape: new CANNON.Box(new CANNON.Vec3(floorSize, floorSize, floorHeight*5)),
+				// 	mass: 0,
+				// 	position: new CANNON.Vec3(0, 0, -floorHeight),
+				// 	meshMaterial: new THREE.MeshLambertMaterial({color: window.game.static.colors.cyan, transparent: true, opacity: 0.2}),
+				// 	physicsMaterial: _cannon.solidMaterial
+				// });
 
 				// Grid Helper
 				var grid = new THREE.GridHelper(floorSize, floorSize / 10);
