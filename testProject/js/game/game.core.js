@@ -377,7 +377,6 @@ window.game.core = function () {
 						case 0 :
                         	//self.collideFunction(event); 
                         	if(!_game.collide) {
-                            	console.log(event);
                                 _game.collide = 1;
                                 _game.player.objectCollide(self);
                             }
@@ -391,9 +390,6 @@ window.game.core = function () {
 						self.isGrounded = (new CANNON.Ray(self.mesh.position, new CANNON.Vec3(0, 0, -1)).intersectBody(event.contact.bi).length > 0);
 					}
 				});
-			},
-			collideFunction: function(event){
-				console.log(event);
 			},
 
 			update: function() {
