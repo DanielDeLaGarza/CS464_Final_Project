@@ -15,6 +15,7 @@ window.game.core = function () {
 //________________________________________________________________
 		player: {
 			// Attributes
+			scaleDiff: 0,
 
 			// Player entity including mesh and rigid body
 			model: null,
@@ -97,7 +98,7 @@ window.game.core = function () {
 				_game.player.rigidBody = new CANNON.RigidBody(_game.player.mass, _game.player.shape, _cannon.createPhysicsMaterial(_cannon.playerPhysicsMaterial));
 				_game.player.rigidBody.position.set(50, 50, 0);
 				_game.player.mesh = _cannon.addVisual(_game.player.rigidBody, null, _game.player.model.mesh);
-                _game.player.mesh.scale.set(_game.scale, _game.scale, _game.scale);
+                _game.player.mesh.scale.set(_game.scale + _game.player.scaleDiff, _game.scale + _game.player.scaleDiff, _game.scale + _game.player.scaleDiff);
 
 				// Create a HingeConstraint to limit player's air-twisting - this needs improvement
 				_game.player.orientationConstraint = new CANNON.HingeConstraint(_game.player.rigidBody, new CANNON.Vec3(0, 0, 0), new CANNON.Vec3(0, 0, 1), _game.player.rigidBody, new CANNON.Vec3(0, 0, 1), new CANNON.Vec3(0, 0, 1));
@@ -113,22 +114,7 @@ window.game.core = function () {
 
 				// Collision event listener for the jump mechanism
 				_game.player.rigidBody.addEventListener("collide", function(event) {
-                    switch(event.with.id) {
-                        case 1 : console.log("how am I?"); break;
-                        case 2 : console.log("how am I?");
-                            if(!_game.collide) {
-                                _game.collide = 1;
-                                _game.player.objectCollide();
-                            }
-                            break;
-                        case 3 : console.log("????"); break;
-                        case 4 : break;
-                        case 5 : break;
-                        case 6 : break;
-                        case 7 : break;
-                        case 8 : break; //do nothing
-                        default : console.log("unkown collision");
-                    }
+
 					// Checks if player's is on ground
 					if (!_game.player.isGrounded) {
 						// Ray intersection test to check if player is colliding with an object beneath him
@@ -137,10 +123,12 @@ window.game.core = function () {
 				});
 			},
             
-            objectCollide : function() {
+            objectCollide : function(other) {
                 console.log("testing collision");
-                _game.scale = _game.scale + 0.02;
-                _game.destroy();
+                _game.player.scaleDiff = _game.player.scaleDiff + 0.02;
+                _game.player.mesh.scale.set(_game.scale + _game.player.scaleDiff, _game.scale + _game.player.scaleDiff, _game.scale + _game.player.scaleDiff);
+                //_game.destroy();
+                _cannon.removeVisual(other.rigidBody);
                 _game.collide = 0;
             },
 
@@ -286,7 +274,7 @@ window.game.core = function () {
 //________________________________________________________________
 		playerAutomatic: {
 			// Attributes
-
+			scaleDiff: -0.5,
 			// Player entity including mesh and rigid body
 			model: null,
 			mesh: null,
@@ -353,7 +341,7 @@ window.game.core = function () {
 				this.rigidBody = new CANNON.RigidBody(this.mass, this.shape, _cannon.createPhysicsMaterial(_cannon.playerPhysicsMaterial));
 				this.rigidBody.position.set(x, y, z);
 				this.mesh = _cannon.addVisual(this.rigidBody, null, this.model.mesh);
-                this.mesh.scale.set(0.5,0.5,0.5);
+                this.mesh.scale.set(_game.scale + this.scaleDiff,_game.scale + this.scaleDiff,_game.scale + this.scaleDiff);
 
 				// Create a HingeConstraint to limit player's air-twisting - this needs improvement
 				this.orientationConstraint = new CANNON.HingeConstraint(this.rigidBody, new CANNON.Vec3(0, 0, 0), new CANNON.Vec3(0, 0, 1), this.rigidBody, new CANNON.Vec3(0, 0, 1), new CANNON.Vec3(0, 0, 1));
@@ -373,13 +361,38 @@ window.game.core = function () {
 				// Collision event listener for the jump mechanism
 				var self = this;
 				this.rigidBody.addEventListener("collide", function(event) {
+
+					switch(event.with.id) {
+                        case 1 : break;
+                        case 2 : break;
+                        case 3 : break;
+                        case 4 : break;
+                        case 5 : break;
+                        case 6 : break;
+                        case 7 : break;
+                        case 8 : break; //do nothing
+                        default : 
+                        	//self.collideFunction(event); 
+                        	if(!_game.collide) {
+                            	console.log(event);
+                                _game.collide = 1;
+                                _game.player.objectCollide(self);
+                            }
+                            break;
+                    }
+
 					// Checks if player's is on ground
 					if (!self.isGrounded) {
+
 						// Ray intersection test to check if player is colliding with an object beneath him
 						self.isGrounded = (new CANNON.Ray(self.mesh.position, new CANNON.Vec3(0, 0, -1)).intersectBody(event.contact.bi).length > 0);
 					}
 				});
 			},
+			collideFunction: function(event){
+				console.log(event);
+			},
+
 			update: function() {
 				// Basic game logic to update player and camera
 				this.think();
@@ -590,6 +603,8 @@ window.game.core = function () {
 			// Create player and level
 			_game.player.create();
 			_game.playerAutomatic.create(0,0,0);
+			_game.playerAutomatic2 = window.game.helpers.cloneObject(_gameDefaults.playerAutomatic);
+			_game.playerAutomatic2.create(0, 0 ,0);
 			_game.level.create();
 
 			// Initiate the game loop
