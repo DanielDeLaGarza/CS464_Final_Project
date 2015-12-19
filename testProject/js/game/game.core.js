@@ -115,17 +115,17 @@ window.game.core = function () {
 				_game.player.rigidBody.addEventListener("collide", function(event) {
                     switch(event.with.id) {
                         case 1 : console.log("how am I?"); break;
-                        case 2 : 
+                        case 2 : console.log("how am I?");
                             if(!_game.collide) {
                                 _game.collide = 1;
                                 _game.player.objectCollide();
                             }
                             break;
                         case 3 : console.log("????"); break;
-                        case 4 :
-                        case 5 :
-                        case 6 :
-                        case 7 :
+                        case 4 : break;
+                        case 5 : break;
+                        case 6 : break;
+                        case 7 : break;
                         case 8 : break; //do nothing
                         default : console.log("unkown collision");
                     }
@@ -630,6 +630,8 @@ window.game.core = function () {
 			_cannon.updatePhysics();
 			_game.player.update();
             _game.playerAutomatic.update();
+            if(_game.playerAutomatic2 != null)
+            	_game.playerAutomatic2.update();
 
 			// Render visual scene
 			_three.render();
@@ -668,6 +670,45 @@ window.game.core = function () {
 			};
 		}
 	};
+
+	function PlayerAutomatic(x,y,z){
+		// Player entity including mesh and rigid body
+			this.model = null;
+			this.mesh= null;
+			this.shape = null;
+			this.rigidBody = null;
+			// Player mass which affects other rigid bodies in the world
+			this.mass = 3;
+
+			// HingeConstraint to limit player's air-twisting
+			this.orientationConstraint= null;
+
+			// Jump flags
+			this.isGrounded = false;
+			this.jumpHeight = 38;
+
+			// Configuration for player speed (acceleration and maximum speed)
+			this.speed = 1.5;
+			this.speedMax= 45;
+			// Configuration for player rotation (rotation acceleration and maximum rotation speed)
+			this.rotationSpeed = 0.007;
+			this.rotationSpeedMax= 0.04;
+			// Rotation values
+			this.rotationRadians = new THREE.Vector3(0, 0, 0);
+			this.rotationAngleX = null;
+			this.rotationAngleY = null;
+			// Damping which means deceleration	(values between 0.8 and 0.98 are recommended)
+			this.damping = 0.9;
+			// Damping or easing for player rotation
+			this.rotationDamping = 0.8;
+			// Acceleration values
+			this.acceleration = 0;
+			this.rotationAcceleration = 0;
+			//Ai Values
+			this.turn = false;
+			this.direcion = 0;
+			this.canjump = 1;
+	}
 
 	// Internal variables
 	var _events;
