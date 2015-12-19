@@ -10,12 +10,15 @@ window.game.core = function () {
 		// Attributes
         scale : 1,
         collide : 0,
+        MIN_Edible_Ratio: 0.6,
+        fishQuantity: 10,
+        fishes: [],
 
 //_________TODO__MAKE_AN_AUTOMATIC_PLAYER_ENEMY________________
 //________________________________________________________________
 		player: {
 			// Attributes
-			scaleDiff: 0,
+			scale: 1,
 
 			// Player entity including mesh and rigid body
 			model: null,
@@ -98,7 +101,7 @@ window.game.core = function () {
 				_game.player.rigidBody = new CANNON.RigidBody(_game.player.mass, _game.player.shape, _cannon.createPhysicsMaterial(_cannon.playerPhysicsMaterial));
 				_game.player.rigidBody.position.set(50, 50, 0);
 				_game.player.mesh = _cannon.addVisual(_game.player.rigidBody, null, _game.player.model.mesh);
-                _game.player.mesh.scale.set(_game.scale + _game.player.scaleDiff, _game.scale + _game.player.scaleDiff, _game.scale + _game.player.scaleDiff);
+                _game.player.mesh.scale.set(_game.player.scale, _game.player.scale, _game.player.scale);
 
 				// Create a HingeConstraint to limit player's air-twisting - this needs improvement
 				_game.player.orientationConstraint = new CANNON.HingeConstraint(_game.player.rigidBody, new CANNON.Vec3(0, 0, 0), new CANNON.Vec3(0, 0, 1), _game.player.rigidBody, new CANNON.Vec3(0, 0, 1), new CANNON.Vec3(0, 0, 1));
@@ -125,8 +128,8 @@ window.game.core = function () {
             
             objectCollide : function(other) {
                 console.log("testing collision");
-                _game.player.scaleDiff = _game.player.scaleDiff + 0.02;
-                _game.player.mesh.scale.set(_game.scale + _game.player.scaleDiff, _game.scale + _game.player.scaleDiff, _game.scale + _game.player.scaleDiff);
+                _game.player.scale = _game.player.scale + 0.02;
+                _game.player.mesh.scale.set(_game.player.scale, _game.player.scale, _game.player.scale);
                 //_game.destroy();
                 _cannon.removeVisual(other.rigidBody);
                 _game.collide = 0;
@@ -274,7 +277,7 @@ window.game.core = function () {
 //________________________________________________________________
 		playerAutomatic: {
 			// Attributes
-			scaleDiff: -0.5,
+			scale: 0.5,
 			// Player entity including mesh and rigid body
 			model: null,
 			mesh: null,
@@ -326,11 +329,12 @@ window.game.core = function () {
 			},
 
 			// Methods
-			create: function(x, y, z) {
+			create: function(x, y, z, s) {
 				// Create a player character based on an imported 3D model that was already loaded as JSON into game.models.player
 
 //___________________TO_DO__THIS_IS_WHERE_OUT_NEW_SHADER_GOES______________________________________________________
 //_________________________________________________________________________________________________________________
+				this.scale = s;
 				this.model = _three.createModel(window.game.models.player, 12, [
 					new THREE.MeshLambertMaterial({ color: window.game.static.colors.cyan, shading: THREE.SmoothShading }),
 					new THREE.MeshLambertMaterial({ color: window.game.static.colors.red, shading: THREE.SmoothShading })
@@ -341,7 +345,7 @@ window.game.core = function () {
 				this.rigidBody = new CANNON.RigidBody(this.mass, this.shape, _cannon.createPhysicsMaterial(_cannon.playerPhysicsMaterial));
 				this.rigidBody.position.set(x, y, z);
 				this.mesh = _cannon.addVisual(this.rigidBody, null, this.model.mesh);
-                this.mesh.scale.set(_game.scale + this.scaleDiff,_game.scale + this.scaleDiff,_game.scale + this.scaleDiff);
+                this.mesh.scale.set(this.scale, this.scale, this.scale);
 
 				// Create a HingeConstraint to limit player's air-twisting - this needs improvement
 				this.orientationConstraint = new CANNON.HingeConstraint(this.rigidBody, new CANNON.Vec3(0, 0, 0), new CANNON.Vec3(0, 0, 1), this.rigidBody, new CANNON.Vec3(0, 0, 1), new CANNON.Vec3(0, 0, 1));
@@ -361,17 +365,10 @@ window.game.core = function () {
 				// Collision event listener for the jump mechanism
 				var self = this;
 				this.rigidBody.addEventListener("collide", function(event) {
+					var collisionValue = 3 + _game.fishes.length;
 
 					switch(event.with.id) {
-                        case 1 : break;
-                        case 2 : break;
-                        case 3 : break;
-                        case 4 : break;
-                        case 5 : break;
-                        case 6 : break;
-                        case 7 : break;
-                        case 8 : break; //do nothing
-                        default : 
+						case 0 :
                         	//self.collideFunction(event); 
                         	if(!_game.collide) {
                             	console.log(event);
@@ -431,6 +428,7 @@ window.game.core = function () {
 //__________________________________________________________________________________________________________
 			think: function() {
 				//calculate if player is close here
+				//console.log(this);
 				x = _game.player.mesh.position.x - this.mesh.position.x;
 				y =  _game.player.mesh.position.y; - this.mesh.position.y;
 				distance = Math.sqrt(Math.pow(x,2) + Math.pow(y,2));
@@ -600,11 +598,21 @@ window.game.core = function () {
 			// Setup necessary game components (_events, _three, _cannon, _ui)
 			_game.initComponents(options);
 
-			// Create player and level
 			_game.player.create();
-			_game.playerAutomatic.create(0,0,0);
-			_game.playerAutomatic2 = window.game.helpers.cloneObject(_gameDefaults.playerAutomatic);
-			_game.playerAutomatic2.create(0, 0 ,0);
+			//Create player and level
+			for(var i =0; i < _game.fishQuantity; i++){
+				console.log("should add fish")
+				if(_game.edibleRatio() < _game.MIN_Edible_Ratio){
+					_game.addFish(true);
+				}
+				else{
+					_game.addFish(false);
+				}
+
+			}
+			//_game.playerAutomatic.create(0,0,0,0.5);
+			//_game.playerAutomatic2 = window.game.helpers.cloneObject(_gameDefaults.playerAutomatic);
+			//_game.playerAutomatic2.create(0, 0 ,0,0.5);
 			_game.level.create();
 
 			// Initiate the game loop
@@ -631,7 +639,7 @@ window.game.core = function () {
 			// Create player and level again
 			_game.player.create();
             _game.playerAutomatic.create(0, 0 ,0);
-            _game.playerAutomatic2.create(0, 0 ,0);
+            _game.playerAutomatic.create(0, 0 ,0);
 			_game.level.create();
 
 			// Continue with the game loop
@@ -644,9 +652,13 @@ window.game.core = function () {
 			// Update Cannon.js world and player state
 			_cannon.updatePhysics();
 			_game.player.update();
-            _game.playerAutomatic.update();
-            if(_game.playerAutomatic2 != null)
-            	_game.playerAutomatic2.update();
+            //_game.playerAutomatic.update();
+            //if(_game.playerAutomatic2 != null)
+            	//_game.playerAutomatic2.update();
+
+            for(var i = 0; i < _game.fishes.length; i++){
+            	_game.fishes[i].update();
+            }
 
 			// Render visual scene
 			_three.render();
@@ -683,47 +695,39 @@ window.game.core = function () {
 					_ui.fadeOut("infoboxIntro");
 				}
 			};
+		},
+		edibleRatio: function(){
+			var unedible = 0;
+			var edible = 0;
+
+			for (var i = 0; i < _game.fishes.length; i++){
+				if(_game.fishes[i].scale/_game.player.sacle < .66){
+					edible++;
+				}
+				else{
+					unedible++;
+				}
+			}
+			return edible/unedible;
+		},
+		addFish: function(edible){
+			console.log("adding fish");
+			var size = 1;
+			if(edible){
+				size = Math.random() * (_game.player.scale*0.6 - _game.player.scale*0.4) + _game.player.scale*0.4;
+
+			}
+			else{
+				size = Math.random() * (_game.player.scale*0.7 - _game.player.scale*1.5) + _game.player.scale*1.5;
+			}
+			_game.fishes[_game.fishes.length] = window.game.helpers.cloneObject(_gameDefaults.playerAutomatic);
+			_game.fishes[_game.fishes.length-1].create(Math.random()*700,Math.random()*700,0, size);
+
+			//_game.playerAutomatic.create(0,0,0,0.5);
+			//_game.playerAutomatic2 = window.game.helpers.cloneObject(_gameDefaults.playerAutomatic);
+			//_game.playerAutomatic2.create(0, 0 ,0,0.5);
 		}
 	};
-
-	function PlayerAutomatic(x,y,z){
-		// Player entity including mesh and rigid body
-			this.model = null;
-			this.mesh= null;
-			this.shape = null;
-			this.rigidBody = null;
-			// Player mass which affects other rigid bodies in the world
-			this.mass = 3;
-
-			// HingeConstraint to limit player's air-twisting
-			this.orientationConstraint= null;
-
-			// Jump flags
-			this.isGrounded = false;
-			this.jumpHeight = 38;
-
-			// Configuration for player speed (acceleration and maximum speed)
-			this.speed = 1.5;
-			this.speedMax= 45;
-			// Configuration for player rotation (rotation acceleration and maximum rotation speed)
-			this.rotationSpeed = 0.007;
-			this.rotationSpeedMax= 0.04;
-			// Rotation values
-			this.rotationRadians = new THREE.Vector3(0, 0, 0);
-			this.rotationAngleX = null;
-			this.rotationAngleY = null;
-			// Damping which means deceleration	(values between 0.8 and 0.98 are recommended)
-			this.damping = 0.9;
-			// Damping or easing for player rotation
-			this.rotationDamping = 0.8;
-			// Acceleration values
-			this.acceleration = 0;
-			this.rotationAcceleration = 0;
-			//Ai Values
-			this.turn = false;
-			this.direcion = 0;
-			this.canjump = 1;
-	}
 
 	// Internal variables
 	var _events;
@@ -737,7 +741,6 @@ window.game.core = function () {
 	var _gameDefaults = {
 		player: window.game.helpers.cloneObject(_game.player),
 		playerAutomatic: window.game.helpers.cloneObject(_game.playerAutomatic),
-		playerAutomatic2: window.game.helpers.cloneObject(_game.playerAutomatic2),
 		level: window.game.helpers.cloneObject(_game.level)
 	};
 
