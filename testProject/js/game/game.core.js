@@ -10,7 +10,7 @@ window.game.core = function () {
 		// Attributes
         scale : 1,
         collide : 0,
-        MIN_Edible_Ratio: 0.6,
+        MIN_Edible_Ratio: .5,
         fishQuantity: 10,
         fishes: [],
 
@@ -128,10 +128,15 @@ window.game.core = function () {
             
             objectCollide : function(other) {
                 console.log("testing collision");
-                _game.player.scale = _game.player.scale + 0.02;
-                _game.player.mesh.scale.set(_game.player.scale, _game.player.scale, _game.player.scale);
-                //_game.destroy();
-                _cannon.removeVisual(other.rigidBody);
+                if(other.scale/_game.player.scale < .66){
+                	_game.player.scale = _game.player.scale + 0.02;
+                	_game.player.mesh.scale.set(_game.player.scale, _game.player.scale, _game.player.scale);
+                	_cannon.removeVisual(other.rigidBody);
+                	_game.fishes.splice(other.id, 1);
+                }
+            	else if(_game.player.scale/other.scale < .66){
+            		_game.destroy();
+            	}
                 _game.collide = 0;
             },
 
@@ -277,6 +282,7 @@ window.game.core = function () {
 //________________________________________________________________
 		playerAutomatic: {
 			// Attributes
+			id: 0,
 			scale: 0.5,
 			// Player entity including mesh and rigid body
 			model: null,
@@ -599,20 +605,11 @@ window.game.core = function () {
 			_game.initComponents(options);
 
 			_game.player.create();
-			//Create player and level
+			
 			for(var i =0; i < _game.fishQuantity; i++){
-				console.log("should add fish")
-				if(_game.edibleRatio() < _game.MIN_Edible_Ratio){
-					_game.addFish(true);
-				}
-				else{
-					_game.addFish(false);
-				}
-
+				_game.addFishKeepRatio();
 			}
-			//_game.playerAutomatic.create(0,0,0,0.5);
-			//_game.playerAutomatic2 = window.game.helpers.cloneObject(_gameDefaults.playerAutomatic);
-			//_game.playerAutomatic2.create(0, 0 ,0,0.5);
+
 			_game.level.create();
 
 			// Initiate the game loop
@@ -631,15 +628,15 @@ window.game.core = function () {
 			// Recreate player and level objects by using initial values which were copied at the first start
 			
 			_game.player = window.game.helpers.cloneObject(_gameDefaults.player);
-			_game.playerAutomatic = window.game.helpers.cloneObject(_gameDefaults.playerAutomatic);
-			_game.playerAutomatic2 = window.game.helpers.cloneObject(_gameDefaults.playerAutomatic);
-
 			_game.level = window.game.helpers.cloneObject(_gameDefaults.level);
 
 			// Create player and level again
 			_game.player.create();
-            _game.playerAutomatic.create(0, 0 ,0);
-            _game.playerAutomatic.create(0, 0 ,0);
+
+			for(var i =0; i < _game.fishQuantity; i++){
+				_game.addFishKeepRatio();
+			}
+
 			_game.level.create();
 
 			// Continue with the game loop
@@ -714,18 +711,23 @@ window.game.core = function () {
 			console.log("adding fish");
 			var size = 1;
 			if(edible){
-				size = Math.random() * (_game.player.scale*0.6 - _game.player.scale*0.4) + _game.player.scale*0.4;
+				size = Math.random() * (_game.player.scale*0.6 - _game.player.scale*0.3) + _game.player.scale*0.3;
 
 			}
 			else{
-				size = Math.random() * (_game.player.scale*0.7 - _game.player.scale*1.5) + _game.player.scale*1.5;
+				size = Math.random()*(_game.player.scale*1.8 - _game.player.scale*0.7) + _game.player.scale*0.7;
 			}
 			_game.fishes[_game.fishes.length] = window.game.helpers.cloneObject(_gameDefaults.playerAutomatic);
 			_game.fishes[_game.fishes.length-1].create(Math.random()*700,Math.random()*700,0, size);
-
-			//_game.playerAutomatic.create(0,0,0,0.5);
-			//_game.playerAutomatic2 = window.game.helpers.cloneObject(_gameDefaults.playerAutomatic);
-			//_game.playerAutomatic2.create(0, 0 ,0,0.5);
+			_game.fishes[_game.fishes.length - 1].id = _game.fishes.length - 1;
+		},
+		addFishKeepRatio: function(){
+			if(_game.edibleRatio() < _game.MIN_Edible_Ratio){
+				_game.addFish(true);
+			}
+			else{
+				_game.addFish(false);
+			}
 		}
 	};
 
