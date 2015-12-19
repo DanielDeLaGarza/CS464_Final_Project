@@ -14,5 +14,6 @@ window.game.static = {
         cyan  : 0x38FDD9,
         blue  : 0x00ffff,
         red   : 0x8b0000,
+        brown : 0x996633
     }
 };

@@ -101,21 +101,6 @@ window.game.cannon = function() {
 
 			return rigidBody;
 		},
-		createNonRigidBody: function(options) {
-			// Creates a new rigid body based on specific options
-			var rigidBody  = new CANNON.RigidBody(options.mass, options.shape, options.physicsMaterial);
-			rigidBody.position.set(options.position.x, options.position.y, options.position.z);
-
-			// Apply a rotation if set by using Quaternions
-			if (options.rotation) {
-				rigidBody.quaternion.setFromAxisAngle(options.rotation[0], options.rotation[1]);
-			}
-
-			// Add the entity to the scene and world
-			_cannon.addVisual(rigidBody, options.meshMaterial, options.customMesh);
-
-			return rigidBody;
-		},
 		createPhysicsMaterial: function(material, friction, restitution) {
 			// Create a new material and add a Cannon ContactMaterial to the world always using _cannon.playerPhysicsMaterial as basis
 			var physicsMaterial = material || new CANNON.Material();

@@ -607,13 +607,13 @@ window.game.core = function () {
 					physicsMaterial: _cannon.solidMaterial
 				});
 
-				// _cannon.createRigidBody({
-				// 	shape: new CANNON.Box(new CANNON.Vec3(floorSize, floorSize, floorHeight*5)),
-				// 	mass: 0,
-				// 	position: new CANNON.Vec3(0, 0, -floorHeight),
-				// 	meshMaterial: new THREE.MeshLambertMaterial({color: window.game.static.colors.cyan, transparent: true, opacity: 0.2}),
-				// 	physicsMaterial: _cannon.solidMaterial
-				// });
+				//_cannon.createRigidBody({
+					//shape: new CANNON.Box(new CANNON.Vec3(floorSize, floorSize, floorHeight*5)),
+				 	//mass: 0,
+				 	//position: new CANNON.Vec3(0, 0, -floorHeight),
+					//meshMaterial: new THREE.MeshLambertMaterial({color: window.game.static.colors.cyan, transparent: true, opacity: 0.2}),
+					//physicsMaterial: _cannon.solidMaterial
+				//});
 
 				// Grid Helper
 				var grid = new THREE.GridHelper(floorSize, floorSize / 10);
@@ -757,7 +757,7 @@ window.game.core = function () {
 				size = Math.random()*(_game.player.scale*3 - _game.player.scale*0.7) + _game.player.scale*0.7;
 			}
 			_game.fishes[_game.fishes.length] = window.game.helpers.cloneObject(_gameDefaults.playerAutomatic);
-			_game.fishes[_game.fishes.length-1].create(Math.random()*700,Math.random()*700,0, size);
+			_game.fishes[_game.fishes.length-1].create(Math.random()*1400 - 700,Math.random()*1400 - 700,0, size);
 			_game.fishes[_game.fishes.length - 1].id = _game.currentFishID;
 			_game.currentFishID++;
 		},
