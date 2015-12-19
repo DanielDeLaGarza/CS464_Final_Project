@@ -681,6 +681,7 @@ window.game.core = function () {
 	var _gameDefaults = {
 		player: window.game.helpers.cloneObject(_game.player),
 		playerAutomatic: window.game.helpers.cloneObject(_game.playerAutomatic),
+		playerAutomatic2: window.game.helpers.cloneObject(_game.playerAutomatic2),
 		level: window.game.helpers.cloneObject(_game.level)
 	};
 
