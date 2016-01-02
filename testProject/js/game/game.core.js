@@ -454,7 +454,7 @@ window.game.core = function () {
 				distance = Math.sqrt(Math.pow(x,2) + Math.pow(y,2));
 
 				//if far way from player
-				if(!(distance < 150)){
+				//if(!(distance < 150)){
 					if(randTimeSince()){
 					this.turn = !this.turn;
 					this.direction = Math.random() -0.5;
@@ -474,38 +474,38 @@ window.game.core = function () {
 					if(this.canjump < 0.05){
 						this.jump();
 					}
-				}
+				//}
 				//close to player
-				else{
-					myDirection = this.mesh.rotation.z ;
+				// else{
+				// 	myDirection = this.mesh.rotation.z ;
 					
 
-					if(x > 0 && y > 0){
-						angleBetweenUs = Math.sin(y,distance);
-						targetDirection = angleBetweenUs -  myDirection;
+				// 	if(x > 0 && y > 0){
+				// 		angleBetweenUs = Math.sin(y,distance);
+				// 		targetDirection = angleBetweenUs -  myDirection;
 
-					}
-					else if(x < 0 && y > 0){
-						angleBetweenUs = window.game.helpers.degToRad(180)  - Math.sin(y,distance);
-						targetDirection = angleBetweenUs - myDirection;
+				// 	}
+				// 	else if(x < 0 && y > 0){
+				// 		angleBetweenUs = window.game.helpers.degToRad(180)  - Math.sin(y,distance);
+				// 		targetDirection = angleBetweenUs - myDirection;
 
-					}
-					else if(x < 0 && y < 0){
-						angleBetweenUs = -window.game.helpers.degToRad(180)  + Math.sin(y,distance);
-						targetDirection = angleBetweenUs - myDirection;
+				// 	}
+				// 	else if(x < 0 && y < 0){
+				// 		angleBetweenUs = -window.game.helpers.degToRad(180)  + Math.sin(y,distance);
+				// 		targetDirection = angleBetweenUs - myDirection;
 						
-					}
-					else{
-						angleBetweenUs = -Math.sin(y,distance);
-						targetDirection = angleBetweenUs - myDirection;
+				// 	}
+				// 	else{
+				// 		angleBetweenUs = -Math.sin(y,distance);
+				// 		targetDirection = angleBetweenUs - myDirection;
 
-					}
-					// try to move away from player
+				// 	}
+				// 	// try to move away from player
 
-					//calculate the direction away from player
-					//change direction until it is close enough to the direction away
-					//if close enough randomize direction away a tad bit
-				}
+				// 	//calculate the direction away from player
+				// 	//change direction until it is close enough to the direction away
+				// 	//if close enough randomize direction away a tad bit
+				// }
 				
 			},
 			accelerate: function() {
